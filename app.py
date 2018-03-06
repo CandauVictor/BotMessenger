@@ -1,5 +1,5 @@
-# Python libraries that we need to import for our bot
-import os
+# Librairies python nécessaires à l'implémentation du bot
+import os #os.environ --> mapping : permet d'accéder à des éléments par clef
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
@@ -10,7 +10,7 @@ VERIFY_TOKEN = os.environ['NndhUoefjdco83kcpdjdKFHZJCJOZD9183NC73BC082N']
 bot = Bot(ACCESS_TOKEN)
 
 
-# We will receive messages that Facebook sends our bot at this endpoint
+# Nous recevrons les messages que Facebook envoie au bot à cet instant
 @app.route("/", methods=['GET', 'POST'])
 def receive_message():
     if request.method == 'GET':
@@ -18,20 +18,20 @@ def receive_message():
         that confirms all requests that your bot receives came from Facebook."""
         token_sent = request.args.get("hub.verify_token")
         return verify_fb_token(token_sent)
-    # if the request was not get, it must be POST and we can just proceed with sending a message back to user
+    # Si la request n'est pas un "GET", c'est un POST et nous pouvons juste renvoyer un message à l'utilisateur
     else:
-        # get whatever message a user sent the bot
+        # Récupère le message envoyé par l'utilisateur au bot
         output = request.get_json()
         for event in output['entry']:
             messaging = event['messaging']
             for message in messaging:
                 if message.get('message'):
-                    # Facebook Messenger ID for user so we know where to send response back to
+                    # Facebook Messenger ID pour l'utilisateur de manière à savoir où renvoyer la réponse
                     recipient_id = message['sender']['id']
                     if message['message'].get('text'):
                         response_sent_text = get_message()
                         send_message(recipient_id, response_sent_text)
-                    # if user sends us a GIF, photo,video, or any other non-text item
+                    # Si l'utilisateur envoie un GIF, une photo, vidéo ou tout message non-texte
                     if message['message'].get('attachments'):
                         response_sent_nontext = get_message()
                         send_message(recipient_id, response_sent_nontext)
@@ -46,17 +46,17 @@ def verify_fb_token(token_sent):
     return 'Invalid verification token'
 
 
-# chooses a random message to send to the user
+# Choisit un message au hasard à envoyer à l'utilisateur
 def get_message():
     sample_responses = ["You are stunning!", "We're proud of you.", "Keep on being you!",
                         "We're greatful to know you :)","Hello Farah","Hello Victor"]
-    # return selected item to the user
+    # Envoie l'item choisi à l'utilisateur
     return random.choice(sample_responses)
 
 
-# uses PyMessenger to send response to user
+# Utilise PyMessenger pour envoyer le message à l'utilisateur
 def send_message(recipient_id, response):
-    # sends user the text message provided via input response parameter
+    # Envoie à l'utilisateur le message texte
     bot.send_text_message(recipient_id, response)
     return "success"
 
